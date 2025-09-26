@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 
+#include "scanner.hpp"
+
 std::string read_file_contents(const std::string& filename);
 
 int main(int argc, char *argv[]) {
@@ -23,12 +25,12 @@ int main(int argc, char *argv[]) {
 
     if (command == "tokenize") {
         std::string file_contents = read_file_contents(argv[2]);
-        if (!file_contents.empty()) {
-            std::cerr << "Scanner not implemented" << std::endl;
-            return 1;
+        Scanner scanner { file_contents }; 
+        std::vector<Token> tokens = scanner.scanTokens();
+
+        for (const auto& token : tokens) {
+            std::cout << token << std::endl;
         }
-        std::cout << "EOF  null" << std::endl; // Placeholder, replace this line when implementing the scanner
-        
     } else {
         std::cerr << "Unknown command: " << command << std::endl;
         return 1;
