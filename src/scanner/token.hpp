@@ -6,9 +6,8 @@
 #include <iostream>
 #include <map>
 
-using Literal  = std::variant<bool, float, std::string>;
 
-enum class TokenType {
+enum TokenType {
   // Single-character tokens.
   LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
   COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
@@ -29,10 +28,10 @@ enum class TokenType {
   END_OF_FILE,
 };
 
-std::ostream& operator<<(std::ostream& os, const TokenType& type);
-std::ostream& operator<<(std::ostream& os, const Literal& literal);
-
 class Token {
+public:
+   using Literal  = std::variant<bool, float, std::string>;
+
 private:
    TokenType m_type;
    std::string m_lexeme;
@@ -40,9 +39,15 @@ private:
    int m_line;
 
 public:
+
    Token(TokenType type, std::string lexeme, Literal literal, int line);
    
    friend std::ostream& operator<<(std::ostream& os, const Token& token);
+   
+   std::string lexeme();
 };
+
+std::ostream& operator<<(std::ostream& os, const TokenType& type);
+std::ostream& operator<<(std::ostream& os, const Token::Literal& literal);
 
 #endif

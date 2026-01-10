@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "scanner.hpp"
+#include "lox.hpp"
 
 std::string read_file_contents(const std::string& filename);
 
@@ -25,13 +25,9 @@ int main(int argc, char *argv[]) {
 
     if (command == "tokenize") {
         std::string file_contents = read_file_contents(argv[2]);
-        Scanner scanner { file_contents }; 
-        std::vector<Token> tokens = scanner.scanTokens();
-
-        for (const auto& token : tokens) {
-            std::cout << token << std::endl;
-        }
-    } else {
+        Lox::run(file_contents);
+    } 
+    else {
         std::cerr << "Unknown command: " << command << std::endl;
         return 1;
     }
