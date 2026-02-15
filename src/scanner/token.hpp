@@ -28,26 +28,31 @@ enum TokenType {
   END_OF_FILE,
 };
 
+using Object  = std::variant<std::monostate, bool, float, std::string>;
+
 class Token {
-public:
-   using Literal  = std::variant<bool, float, std::string>;
+   private:
+      TokenType m_type;
+      std::string m_lexeme;
+      Object m_literal;
+      std::size_t m_line;
 
-private:
-   TokenType m_type;
-   std::string m_lexeme;
-   Literal m_literal;
-   int m_line;
+   public:
 
-public:
+      Token(TokenType type, std::string lexeme, Object literal, std::size_t line);
+      
+      friend std::ostream& operator<<(std::ostream& os, const Token& token);
+      
+      std::string lexeme() const;
+      
+      TokenType type() const;
 
-   Token(TokenType type, std::string lexeme, Literal literal, int line);
-   
-   friend std::ostream& operator<<(std::ostream& os, const Token& token);
-   
-   std::string lexeme();
+      Object literal() const;
+
+      std::size_t line() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const TokenType& type);
-std::ostream& operator<<(std::ostream& os, const Token::Literal& literal);
+std::ostream& operator<<(std::ostream& os, const Object& literal);
 
 #endif

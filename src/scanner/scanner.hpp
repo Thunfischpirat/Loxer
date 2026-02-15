@@ -11,9 +11,9 @@ class Scanner {
 private:
     std::string m_source;
     std::vector<Token> m_tokens;
-    int m_line;
-    int m_current;
-    int m_start;
+    std::size_t m_line;
+    std::size_t m_current;
+    std::size_t m_start;
     
     static const std::map<std::string, TokenType> m_keywords; 
 
@@ -23,19 +23,19 @@ public:
     std::vector<Token> scanTokens();
 
 private:
-    const char advance();
+    char advance();
 
     bool isAtEnd();
 
     void addToken (TokenType type);
     
-    void addToken(TokenType type, Token::Literal); 
+    void addToken(TokenType type, Object); 
 
     void scanToken();
 
     bool match(char expected); 
     
-    const char peek();
+    char peek();
 
     void string();
     
@@ -43,7 +43,7 @@ private:
     
     void number();
     
-    const char peekNext();
+    char peekNext();
 
     bool isAlpha(const char c);
     

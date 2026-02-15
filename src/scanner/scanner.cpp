@@ -32,7 +32,7 @@ std::vector<Token> Scanner::scanTokens() {
    return m_tokens;   
 }
 
-const char Scanner::advance() {
+char Scanner::advance() {
    return m_source.at(m_current++);
 }
 
@@ -44,7 +44,7 @@ void Scanner::addToken(TokenType type) {
    addToken(type, "null");
 }
 
-void Scanner::addToken(TokenType type, Token::Literal literal) {
+void Scanner::addToken(TokenType type, Object literal) {
    std::string text = m_source.substr(m_start, m_current - m_start);
    m_tokens.push_back(Token { type, text, literal, m_line });
 }
@@ -110,7 +110,7 @@ bool Scanner::match(char expected) {
    return true;
 }
 
-const char Scanner::peek() {
+char Scanner::peek() {
    if (isAtEnd()) 
 	return '\0';
    return m_source.at(m_current);
@@ -149,7 +149,7 @@ void Scanner::number() {
    addToken(NUMBER, value);
 }
 
-const char Scanner::peekNext() {
+char Scanner::peekNext() {
    if (m_current + 1 >= m_source.length())
       return '\0';
    return m_source.at(m_current + 1);

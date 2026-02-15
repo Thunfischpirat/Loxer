@@ -1,15 +1,21 @@
 #include <string>
 
+#include "scanner/token.hpp"
+
 class Lox {
 
 public:
    static bool m_hadError;
    
-   static void error(int line, std::string message);
+   static void error(std::size_t line, std::string_view message);
 
-   static void run(std::string source);
+   static void error(Token token, std::string_view message);
+
+   static void tokenize(std::string source);
+
+   static void parse(std::string source);
 
 private:
-   static void report(int line, std::string where, std::string message);
+   static void report(std::size_t line, std::string where, std::string_view message);
 
 };

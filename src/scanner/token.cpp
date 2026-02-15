@@ -61,7 +61,7 @@ std::ostream& operator<<(std::ostream& os, const TokenType& type) {
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Token::Literal& literal) {
+std::ostream& operator<<(std::ostream& os, const Object& literal) {
    if (std::holds_alternative<bool>(literal)) {
 	os << std::get<bool>(literal);
    } else if (std::holds_alternative<float>(literal)) {
@@ -73,17 +73,31 @@ std::ostream& operator<<(std::ostream& os, const Token::Literal& literal) {
 }
 
 
-Token::Token(TokenType type, std::string lexeme, Token::Literal literal, int line)
+Token::Token(TokenType type, std::string lexeme, Object literal, std::size_t line)
    : m_type(type), m_lexeme(lexeme), m_literal(literal), m_line(line) {
 }
 
-std::string Token::lexeme() {
+std::string Token::lexeme() const {
    return m_lexeme;
+}
+
+TokenType Token::type() const {
+   return m_type;
+}
+
+Object Token::literal() const {
+   return m_literal;
+}
+
+std::size_t Token::line() const {
+   return m_line;
 }
 
 std::ostream& operator<<(std::ostream& os, const Token& token) {
    os << token.m_type << " " << token.m_lexeme << " " << token.m_literal; 
    return os;
 }
+
+   
 
 

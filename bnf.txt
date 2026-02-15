@@ -1,0 +1,38 @@
+expr → expr ( "(" ( expr ( "," expr )* )? ")" | "." IDENTIFIER )+
+     | IDENTIFIER
+     | NUMBER
+
+expr → expr ( "(" ( expr ( "," expr )* )? ")" | "." IDENTIFIER )+
+expr → IDENTIFIER
+expr → NUMBER
+
+expr → expr ( "(" ( expr ( "," expr )* )? ")" | "." IDENTIFIER )+
+expr → IDENTIFIER
+expr → NUMBER
+
+expr → expr ( "(" ( expr ( "," expr )* )? ")" )+
+expr → expr ( "." IDENTIFIER )+ 
+expr → IDENTIFIER
+expr → NUMBER
+
+expr → expr "(" ( expr ( "," expr )* )? ")" expr
+expr → expr "." IDENTIFIER expr 
+expr → IDENTIFIER
+expr → NUMBER
+
+
+expr → expr "(" inner ")" 
+expr → expr "(" ")"
+inner → expr
+inner → "," expr 
+inner → "," expr inner
+expr → expr "." IDENTIFIER 
+expr → IDENTIFIER
+expr → NUMBER
+
+
+
+
+
+
+
