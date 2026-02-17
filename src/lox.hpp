@@ -1,6 +1,8 @@
 #include <string>
+#include <vector>
 
 #include "scanner/token.hpp"
+#include "parser/expr.hpp"
 
 class Lox {
 
@@ -11,9 +13,11 @@ public:
 
    static void error(Token token, std::string_view message);
 
-   static void tokenize(std::string source);
+   static std::vector<Token> tokenize(std::string source);
 
-   static void parse(std::string source);
+   static ExprPtr parse(std::string source);
+
+   static void interpret(std::string source);
 
 private:
    static void report(std::size_t line, std::string where, std::string_view message);

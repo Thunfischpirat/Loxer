@@ -22,14 +22,20 @@ int main(int argc, char *argv[]) {
     }
 
     const std::string command = argv[1];
+    std::string file_contents = read_file_contents(argv[2]);
 
     if (command == "tokenize") {
-        std::string file_contents = read_file_contents(argv[2]);
-        Lox::tokenize(file_contents);
+        std::vector<Token> tokens { Lox::tokenize(file_contents) };
+	for (const auto& token : tokens) {
+	    std::cout << token << std::endl;
+        }
     } 
     else if (command == "parse") {
-        std::string file_contents = read_file_contents(argv[2]);
-        Lox::parse(file_contents);
+        ExprPtr expression { Lox::parse(file_contents) };
+        std::cout << *expression << '\n';
+    }
+    else if (command == "interpret") {
+        Lox::interpret(file_contents); 
     }
     else {
         std::cerr << "Unknown command: " << command << std::endl;

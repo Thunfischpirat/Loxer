@@ -4,12 +4,15 @@
 #include <memory>
 
 #include "../scanner/token.hpp"
+#include "runtime_error.hpp"
 
 class Expr {
    public:
       virtual ~Expr() = default;
       
       virtual std::string print() const = 0;
+
+      virtual Object interpret() const = 0;
 
       friend std::ostream& operator<<(std::ostream& out, const Expr& expr) {
 	 return out << expr.print();
@@ -30,13 +33,9 @@ class Binary final : public Expr {
       {
       }
 
-      const Expr& left() const;
-
-      const Expr& right() const;
-
-      Token op() const;
-    
       std::string print() const override;
+
+      Object interpret() const override; 
 };
 
 class Unary final : public Expr {
@@ -49,12 +48,10 @@ class Unary final : public Expr {
       : m_op{std::move(op)}, m_expr{std::move(expr)}
       {
       }
-      
-      const Expr& expression() const;
-
-      Token op() const;
-
+     
       std::string print() const override;
+
+      Object interpret() const override;
 
 };
 
@@ -68,9 +65,9 @@ class Grouping final : public Expr {
       {
       }
 
-      const Expr& expression() const;
-
       std::string print() const override;
+
+      Object interpret() const override;
 
 };
 
@@ -84,9 +81,9 @@ class Literal final : public Expr {
       {
       }
    
-      Object literal() const;
-
       std::string print() const override;
+
+      Object interpret() const override;
 };
 
 #endif

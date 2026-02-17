@@ -25,29 +25,36 @@ void Lox::report(std::size_t line, std::string where, std::string_view message) 
    m_hadError = true;
 }
 
-void Lox::parse(std::string source) {
-   Scanner scanner { source };
-   std::vector<Token> tokens = scanner.scanTokens();
-  
-   Parser parser { tokens };
+ExprPtr Lox::parse(std::string source) { 
+   Parser parser { Lox::tokenize(source) };
    ExprPtr expression { parser.parse() };
   
    if (m_hadError) {
       std::exit(65);
    }
 
-   std::cout << *expression << '\n';
+   return expression;
 }
 
-void Lox::tokenize(std::string source) {
+std::vector<Token> Lox::tokenize(std::string source) {
    Scanner scanner { source };
    std::vector<Token> tokens = scanner.scanTokens();
-  
-   for (const auto& token : tokens) {
-       std::cout << token << std::endl;
-   }
-   
+    
    if (m_hadError) {
       std::exit(65);
    }
+
+   return tokens;
+   
+}
+
+void Lox::interpret(std::string source) {
+     try {
+        ExprPtr expression { parse(source) };
+	std::cout << expression->interpret() << '\n';
+     }
+     catch (const RuntimeError& e) {
+        error(e.token(), e.what());	 
+        std::exit(70);
+     }
 }

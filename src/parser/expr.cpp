@@ -1,31 +1,91 @@
+#include <stdexcept>
+
 #include "expr.hpp"
 
-const Expr& Binary::left() const {
-   return *m_left;
+bool isTruthy(Object object) {
+   if (std::holds_alternative<std::monostate>(object)) {
+      return false;
+   }
+   if (std::holds_alternative<bool>(object)) {
+      return std::get<bool>(object);
+   }
+   return true;
 }
 
-const Expr& Binary::right() const {
-   return *m_right;
+template <typename T>
+bool checkType(Object object, Token token) {
+   if (!std::holds_alternative<T>(object)) {
+      throw RuntimeError("Operand type incorrect", token);
+   }
+   return true;
 }
 
-Token Binary::op() const {
-   return m_op;
-}
-
-const Expr& Unary::expression() const {
-   return *m_expr;
-}
-
-Token Unary::op() const {
-   return m_op;
-}
-
-const Expr& Grouping::expression() const {
-   return *m_group;
-}
-
-Object Literal::literal() const {
+Object Literal::interpret() const {
    return m_lit;
+}
+
+Object Grouping::interpret() const {
+   return m_group->interpret();
+}
+
+Object Unary::interpret() const {
+   Object right { m_expr->interpret() }; 
+
+   switch (m_op.type()) {
+      case MINUS:
+         checkType<float>(right, m_op);
+         return std::get<float>(right);
+      case BANG:
+         return !isTruthy(right);
+      default:
+         return std::monostate{};
+   }
+   return std::monostate{};
+}
+
+Object Binary::interpret() const {
+   Object left { m_left->interpret() };
+   Object right { m_right->interpret() };
+   
+   switch(m_op.type()) {
+      case MINUS:
+         checkType<float>(left, m_op) && checkType<float>(right, m_op);
+         return std::get<float>(left) - std::get<float>(right);
+      case PLUS:
+         if (std::holds_alternative<float>(left) && std::holds_alternative<float>(right)) {
+            return std::get<float>(left) + std::get<float>(right);
+         }
+         if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right)) {
+            return std::get<std::string>(left) + std::get<std::string>(right);
+         }
+         throw RuntimeError("Operand type incorrect", m_op);
+         break;
+      case SLASH:
+         checkType<float>(left, m_op) && checkType<float>(right, m_op);
+         return std::get<float>(left) / std::get<float>(right);
+      case STAR:
+         checkType<float>(left, m_op) && checkType<float>(right, m_op);
+         return std::get<float>(left) * std::get<float>(right);
+      case GREATER:
+         checkType<float>(left, m_op) && checkType<float>(right, m_op);
+         return std::get<float>(left) > std::get<float>(right);
+      case GREATER_EQUAL:
+         checkType<float>(left, m_op) && checkType<float>(right, m_op);
+         return std::get<float>(left) >= std::get<float>(right);
+      case LESS:
+         checkType<float>(left, m_op) && checkType<float>(right, m_op);
+         return std::get<float>(left) < std::get<float>(right);
+      case LESS_EQUAL:
+         checkType<float>(left, m_op) && checkType<float>(right, m_op);
+         return std::get<float>(left) <= std::get<float>(right);
+      case EQUAL_EQUAL:
+         return left == right;
+      case BANG_EQUAL:
+         return left != right;
+      default:
+         return std::monostate{};
+   }
+   return std::monostate{};
 }
 
 std::string Binary::print() const {
