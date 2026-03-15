@@ -84,12 +84,40 @@ ExprPtr Parser::primary() {
    throw ParserError { "Expected expression. " };
 }
 
+StmtPtr Parser::statement() {
+   if (match(PRINT)) {
+      return printStatement();
+   }
+   // TODO: Support more statements.
+   return expressionStatement();
+}
+
+StmtPtr Parser::printStatement() {
+   ExprPtr value { expression() };
+   consume(SEMICOLON, "Expect ';' after value.");
+   return std::make_unique<Print>(std::move(value));
+}
+
+StmtPtr Parser::expressionStatement() {
+   ExprPtr expr { expression() };
+   consume(SEMICOLON, "Expect ';' after expression.");
+   return std::make_unique<Expression>(std::move(expr));
+}
+
 bool Parser::match(std::vector<TokenType> types) {
    for (const TokenType& type : types) {
       if (check(type)) {
          advance();
          return true;
       }
+   }
+   return false;
+}
+
+bool Parser::match(TokenType type) {
+   if (check(type)) {
+      advance();
+      return true;
    }
    return false;
 }
@@ -128,12 +156,10 @@ Token Parser::consume(TokenType type, std::string_view message) {
    throw ParserError { message };
 }
 
-ExprPtr Parser::parse() {
-   try {
-      return expression(); 
-   }
-   catch (const ParserError& exception) {
-      std::cerr << "A parser exception occured (" << exception.what() << ")\n";
-      return nullptr;
-   }
+std::vector<StmtPtr> Parser::parse() {
+  std::vector<StmtPtr> statements;
+  while (!isAtEnd()) {
+     statements.push_back(statement());
+  } 
+  return statements;
 }

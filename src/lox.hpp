@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "scanner/token.hpp"
-#include "parser/expr.hpp"
+#include "parser/parser.hpp"
 
 class Lox {
 
@@ -15,7 +15,7 @@ public:
 
    static std::vector<Token> tokenize(std::string source);
 
-   static ExprPtr parse(std::string source);
+   static std::vector<StmtPtr> parse(std::string source);
 
    static void interpret(std::string source);
 

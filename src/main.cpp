@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     std::cerr << "Logs from your program will appear here!" << std::endl;
 
     if (argc < 3) {
-        std::cerr << "Usage: ./your_program tokenize <filename>" << std::endl;
+        std::cerr << "Usage: ./your_program {tokenize, parse, interpret} <filename>" << std::endl;
         return 1;
     }
 
@@ -31,8 +31,9 @@ int main(int argc, char *argv[]) {
         }
     } 
     else if (command == "parse") {
-        ExprPtr expression { Lox::parse(file_contents) };
-        std::cout << *expression << '\n';
+// TODO: Parse statements
+//        ExprPtr expression { Lox::parse(file_contents) };
+//        std::cout << *expression << '\n';
     }
     else if (command == "interpret") {
         Lox::interpret(file_contents); 

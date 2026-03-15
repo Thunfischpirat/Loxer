@@ -2,7 +2,6 @@
 
 #include "lox.hpp"
 #include "scanner/scanner.hpp"
-#include "parser/parser.hpp"
 
 // Define the static member variable
 bool Lox::m_hadError = false;
@@ -25,15 +24,15 @@ void Lox::report(std::size_t line, std::string where, std::string_view message) 
    m_hadError = true;
 }
 
-ExprPtr Lox::parse(std::string source) { 
+std::vector<StmtPtr> Lox::parse(std::string source) { 
    Parser parser { Lox::tokenize(source) };
-   ExprPtr expression { parser.parse() };
+   std::vector<StmtPtr> statements { parser.parse() };
   
    if (m_hadError) {
       std::exit(65);
    }
 
-   return expression;
+   return statements;
 }
 
 std::vector<Token> Lox::tokenize(std::string source) {
@@ -50,8 +49,10 @@ std::vector<Token> Lox::tokenize(std::string source) {
 
 void Lox::interpret(std::string source) {
      try {
-        ExprPtr expression { parse(source) };
-	std::cout << expression->interpret() << '\n';
+        std::vector<StmtPtr> statements { parse(source) };
+	for (StmtPtr& statement: statements) {
+           std::visit(Interpreter{}, std::move(statement));
+        }
      }
      catch (const RuntimeError& e) {
         error(e.token(), e.what());	 

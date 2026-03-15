@@ -7,6 +7,7 @@
 
 #include "expr.hpp"
 #include "../scanner/token.hpp"
+#include "stmt.hpp"
 
 class Parser {
 
@@ -28,7 +29,15 @@ class Parser {
 
       ExprPtr primary();
 
+      StmtPtr statement(); 
+  
+      StmtPtr printStatement();
+ 
+      StmtPtr expressionStatement();
+
       bool match(std::vector<TokenType> types);
+ 
+      bool match(TokenType type);
   
       bool check(TokenType type);
   
@@ -48,7 +57,7 @@ class Parser {
       {
       } 
 
-      ExprPtr parse();
+      std::vector<StmtPtr> parse();
 
 };
 

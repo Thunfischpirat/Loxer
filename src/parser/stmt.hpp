@@ -28,10 +28,11 @@ class Print {
       }
 };
 
-struct Visitor {
+struct Interpreter {
    void operator()(std::unique_ptr<Expression> stmt); 
 
    void operator()(std::unique_ptr<Print> stmt);
 }; 
 
 using Stmt = std::variant<Print, Expression>;
+using StmtPtr = std::variant<std::unique_ptr<Print>, std::unique_ptr<Expression>>;
