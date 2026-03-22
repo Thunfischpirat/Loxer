@@ -2,6 +2,7 @@
 
 #include "lox.hpp"
 #include "scanner/scanner.hpp"
+#include "interpreter/interpreter.hpp"
 
 // Define the static member variable
 bool Lox::m_hadError = false;

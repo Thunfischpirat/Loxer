@@ -2,7 +2,7 @@
 #include <string>
 #include <string_view>
 
-#include "../scanner/token.hpp"
+#include "scanner/token.hpp"
 
 class RuntimeError : public std::runtime_error {
    private:

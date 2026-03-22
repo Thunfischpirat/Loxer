@@ -1,3 +1,6 @@
+#ifndef STMT_HPP
+#define STMT_HPP
+
 #include "expr.hpp"
 
 class Expression {
@@ -28,11 +31,28 @@ class Print {
       }
 };
 
-struct Interpreter {
-   void operator()(std::unique_ptr<Expression> stmt); 
+class Var {
+   private:
+      Token m_name;
+      ExprPtr m_initializer;
+   public:
+      Var(Token name, ExprPtr initializer) 
+      : m_name{name}, m_initializer{ std::move(initializer) }
+      {
+      }
 
-   void operator()(std::unique_ptr<Print> stmt);
-}; 
+      ExprPtr initializer() {
+         return std::move(m_initializer);
+      }
+      
+      Token name() const {
+         return m_name;
+      }
+  };
 
-using Stmt = std::variant<Print, Expression>;
-using StmtPtr = std::variant<std::unique_ptr<Print>, std::unique_ptr<Expression>>;
+using StmtPtr = std::variant<std::unique_ptr<Print>,
+                             std::unique_ptr<Expression>,
+                             std::unique_ptr<Var>,
+                             std::nullptr_t>;
+
+#endif

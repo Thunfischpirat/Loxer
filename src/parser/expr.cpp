@@ -20,15 +20,18 @@ bool checkType(Object object, Token token) {
    return true;
 }
 
-Object Literal::interpret() const {
+Object Literal::interpret_impl(EnvRef env) const {
+   (void)env;
    return m_lit;
 }
 
-Object Grouping::interpret() const {
+Object Grouping::interpret_impl(EnvRef env) const {
+   (void)env;
    return m_group->interpret();
 }
 
-Object Unary::interpret() const {
+Object Unary::interpret_impl(EnvRef env) const {
+   (void)env;
    Object right { m_expr->interpret() }; 
 
    switch (m_op.type()) {
@@ -43,7 +46,12 @@ Object Unary::interpret() const {
    return std::monostate{};
 }
 
-Object Binary::interpret() const {
+Object Variable::interpret_impl(EnvRef env) const {
+   return env->get().get(m_name);
+}
+
+Object Binary::interpret_impl(EnvRef env) const {
+   (void)env;
    Object left { m_left->interpret() };
    Object right { m_right->interpret() };
    
@@ -98,6 +106,10 @@ std::string Unary::print() const {
 
 std::string Grouping::print() const {
    return "(group " + m_group->print() + ")";
+}
+
+std::string Variable::print() const {
+   return "(variable " + m_name.lexeme() + ")";
 }
 
 std::string Literal::print() const {

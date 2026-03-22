@@ -74,6 +74,9 @@ ExprPtr Parser::primary() {
       Object lit { previous().literal() };
       return std::make_unique<Literal>(lit);
    }
+   if (match(IDENTIFIER)) {
+      return std::make_unique<Variable>(previous());
+   }
    if (check(LEFT_PAREN)) {
       advance();
       ExprPtr expr { expression() };   
@@ -84,6 +87,32 @@ ExprPtr Parser::primary() {
    throw ParserError { "Expected expression. " };
 }
 
+StmtPtr Parser::declaration() {
+   try {
+      if (match(VAR)) {
+         return varDeclaration();   
+      }
+      return statement();
+   } 
+   catch (const ParserError& error) {
+      synchronize();
+      return nullptr;
+   }
+}
+
+StmtPtr Parser::varDeclaration() {
+   Token name { consume(IDENTIFIER, "Expect variable name.") };
+
+   ExprPtr initializer { nullptr };
+   
+   if (match(EQUAL)) {
+      initializer = std::move(expression());
+   }
+   
+   consume(SEMICOLON, "Expect ';' after variable declaration.");
+   return std::make_unique<Var>(name, std::move(initializer));
+}
+   
 StmtPtr Parser::statement() {
    if (match(PRINT)) {
       return printStatement();
@@ -136,6 +165,32 @@ Token Parser::advance() {
    return previous();
 }
 
+void Parser::synchronize() {
+   advance();
+   while (!isAtEnd()) {
+      if (previous().type() == SEMICOLON) {
+         return;
+      }
+
+      switch (peek().type()) {
+         case CLASS:
+         case FUN:
+         case VAR:
+         case FOR:
+         case IF:
+         case WHILE:
+         case PRINT:
+         case RETURN:
+            return;
+         default:
+            // TODO: Handle other Token types
+            return;
+      }
+      
+      advance();
+   }
+}
+
 bool Parser::isAtEnd() {
    return peek().type() == TokenType::END_OF_FILE;
 }
@@ -159,7 +214,7 @@ Token Parser::consume(TokenType type, std::string_view message) {
 std::vector<StmtPtr> Parser::parse() {
   std::vector<StmtPtr> statements;
   while (!isAtEnd()) {
-     statements.push_back(statement());
+     statements.push_back(declaration());
   } 
   return statements;
 }

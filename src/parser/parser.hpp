@@ -29,6 +29,10 @@ class Parser {
 
       ExprPtr primary();
 
+      StmtPtr declaration();
+
+      StmtPtr varDeclaration();
+
       StmtPtr statement(); 
   
       StmtPtr printStatement();
@@ -42,6 +46,8 @@ class Parser {
       bool check(TokenType type);
   
       Token advance();
+ 
+      void synchronize();
      
       bool isAtEnd();
 
