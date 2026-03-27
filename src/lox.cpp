@@ -51,8 +51,9 @@ std::vector<Token> Lox::tokenize(std::string source) {
 void Lox::interpret(std::string source) {
      try {
         std::vector<StmtPtr> statements { parse(source) };
+        Interpreter interpreter {};
 	for (StmtPtr& statement: statements) {
-           std::visit(Interpreter{}, std::move(statement));
+           std::visit(interpreter, std::move(statement));
         }
      }
      catch (const RuntimeError& e) {

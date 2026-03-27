@@ -13,9 +13,6 @@ int main(int argc, char *argv[]) {
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
 
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
-    std::cerr << "Logs from your program will appear here!" << std::endl;
-
     if (argc < 3) {
         std::cerr << "Usage: ./your_program {tokenize, parse, interpret} <filename>" << std::endl;
         return 1;

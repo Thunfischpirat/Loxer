@@ -20,19 +20,19 @@ bool checkType(Object object, Token token) {
    return true;
 }
 
-Object Literal::interpret_impl(EnvRef env) const {
+Object Literal::interpret(Environment& env) const {
    (void)env;
    return m_lit;
 }
 
-Object Grouping::interpret_impl(EnvRef env) const {
+Object Grouping::interpret(Environment& env) const {
    (void)env;
-   return m_group->interpret();
+   return m_group->interpret(env);
 }
 
-Object Unary::interpret_impl(EnvRef env) const {
+Object Unary::interpret(Environment& env) const {
    (void)env;
-   Object right { m_expr->interpret() }; 
+   Object right { m_expr->interpret(env) }; 
 
    switch (m_op.type()) {
       case MINUS:
@@ -46,14 +46,20 @@ Object Unary::interpret_impl(EnvRef env) const {
    return std::monostate{};
 }
 
-Object Variable::interpret_impl(EnvRef env) const {
-   return env->get().get(m_name);
+Object Variable::interpret(Environment& env) const {
+   return env.get(m_name);
 }
 
-Object Binary::interpret_impl(EnvRef env) const {
+Object Assign::interpret(Environment& env) const {
+   Object value { m_value->interpret(env) }; 
+   env.assign(m_name, value);
+   return value;
+}
+
+Object Binary::interpret(Environment& env) const {
    (void)env;
-   Object left { m_left->interpret() };
-   Object right { m_right->interpret() };
+   Object left { m_left->interpret(env) };
+   Object right { m_right->interpret(env) };
    
    switch(m_op.type()) {
       case MINUS:
@@ -110,6 +116,10 @@ std::string Grouping::print() const {
 
 std::string Variable::print() const {
    return "(variable " + m_name.lexeme() + ")";
+}
+
+std::string Assign::print() const {
+   return "(assign " + m_name.lexeme() + " " + m_value->print() + ")";
 }
 
 std::string Literal::print() const {

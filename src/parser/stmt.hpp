@@ -53,6 +53,6 @@ class Var {
 using StmtPtr = std::variant<std::unique_ptr<Print>,
                              std::unique_ptr<Expression>,
                              std::unique_ptr<Var>,
-                             std::nullptr_t>;
+                             std::monostate>;
 
 #endif

@@ -17,6 +17,8 @@ class Parser {
       
       ExprPtr expression();
 
+      ExprPtr assignment();
+
       ExprPtr equality();
 
       ExprPtr comparison();

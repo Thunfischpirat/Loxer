@@ -9,25 +9,15 @@
 #include "../interpreter/environment.hpp"
 #include "../runtime_error.hpp"
 
-using EnvRef = std::optional<std::reference_wrapper<Environment>>;
 
 class Expr {
-   private:
-      virtual Object interpret_impl(EnvRef env) const = 0;
-
    public:
 
       virtual ~Expr() = default;
       
       virtual std::string print() const = 0;
 
-      Object interpret() const {
-         return interpret_impl(std::nullopt);
-      }
-
-      Object interpret(EnvRef env) const {
-         return interpret_impl(env);
-      } 
+      virtual Object interpret(Environment& env) const = 0;
 
       friend std::ostream& operator<<(std::ostream& out, const Expr& expr) {
 	 return out << expr.print();
@@ -50,7 +40,7 @@ class Binary final : public Expr {
 
       std::string print() const override;
 
-      Object interpret_impl(EnvRef env) const override; 
+      Object interpret(Environment& env) const override; 
 };
 
 class Unary final : public Expr {
@@ -66,7 +56,7 @@ class Unary final : public Expr {
      
       std::string print() const override;
 
-      Object interpret_impl(EnvRef env) const override;
+      Object interpret(Environment& env) const override;
 
 };
 
@@ -82,7 +72,7 @@ class Grouping final : public Expr {
 
       std::string print() const override;
 
-      Object interpret_impl(EnvRef env) const override;
+      Object interpret(Environment& env) const override;
 
 };
 
@@ -95,9 +85,32 @@ class Variable final : public Expr {
       {
       }
       
+      Token name() const {
+         return m_name;
+      }
+
       std::string print() const override;
     
-      Object interpret_impl(EnvRef env) const override;
+      Object interpret(Environment& env) const override;
+};
+
+class Assign final: public Expr {
+   private:
+      Token m_name;
+      ExprPtr m_value;
+   public:
+      Assign(Token name, ExprPtr value)
+      : m_name{name}, m_value{std::move(value)}
+      {
+      }
+ 
+      Token name() const {
+         return m_name;
+      }
+      
+      std::string print() const override;
+
+      Object interpret(Environment& env) const override; 
 };
 
 class Literal final : public Expr {
@@ -112,7 +125,7 @@ class Literal final : public Expr {
    
       std::string print() const override;
 
-      Object interpret_impl(EnvRef env) const override;
+      Object interpret(Environment& env) const override;
 };
 
 #endif

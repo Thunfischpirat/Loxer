@@ -14,6 +14,8 @@ class Environment {
       Environment() = default;
     
       void define(std::string name, Object value);
+
+      void assign(const Token& name, Object value);
   
       Object get(const Token& name); 
       

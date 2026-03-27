@@ -10,5 +10,5 @@ struct Interpreter {
 
    void operator()(std::unique_ptr<Var> stmt);
 
-   void operator()(std::nullptr_t ptr);
+   void operator()(std::monostate);
 }; 

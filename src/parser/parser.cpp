@@ -3,7 +3,24 @@
 #include "../lox.hpp"
 
 ExprPtr Parser::expression() {
-   return equality();
+   return assignment();
+}
+
+ExprPtr Parser::assignment() {
+   ExprPtr expr { equality() };
+   
+   if (match(EQUAL)) {
+      Token equals { previous() };
+      ExprPtr value { assignment() };
+  
+      if (auto var = dynamic_cast<Variable*>(expr.get())) {
+         Token name { var->name() }; 
+         return std::make_unique<Assign>(name, std::move(value)); 
+      }
+      
+      Lox::error(equals, "Invalid assignment target.");
+   }
+   return expr;
 }
 
 ExprPtr Parser::equality() {
@@ -96,7 +113,7 @@ StmtPtr Parser::declaration() {
    } 
    catch (const ParserError& error) {
       synchronize();
-      return nullptr;
+      return std::monostate{};
    }
 }
 
@@ -135,8 +152,7 @@ StmtPtr Parser::expressionStatement() {
 
 bool Parser::match(std::vector<TokenType> types) {
    for (const TokenType& type : types) {
-      if (check(type)) {
-         advance();
+      if (match(type)) {
          return true;
       }
    }
@@ -214,7 +230,10 @@ Token Parser::consume(TokenType type, std::string_view message) {
 std::vector<StmtPtr> Parser::parse() {
   std::vector<StmtPtr> statements;
   while (!isAtEnd()) {
-     statements.push_back(declaration());
+     StmtPtr stmt { declaration() }; 
+     if (!std::holds_alternative<std::monostate>(stmt)) {
+        statements.push_back(std::move(stmt));
+     }
   } 
   return statements;
 }
