@@ -3,6 +3,7 @@
 
 #include "expr.hpp"
 
+
 class Expression {
    private:
       ExprPtr m_expression;
@@ -48,11 +49,30 @@ class Var {
       Token name() const {
          return m_name;
       }
-  };
+};
+
+class Block;
 
 using StmtPtr = std::variant<std::unique_ptr<Print>,
                              std::unique_ptr<Expression>,
                              std::unique_ptr<Var>,
+                             std::unique_ptr<Block>,
                              std::monostate>;
+
+class Block {
+   private:
+      std::vector<StmtPtr> m_statements;
+   public:
+      Block(std::vector<StmtPtr> statements)
+      : m_statements{std::move(statements)}
+      {
+      }
+      
+      const std::vector<StmtPtr>& statements() const {
+         return m_statements;
+      }
+};
+
+
 
 #endif

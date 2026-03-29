@@ -1,27 +1,29 @@
 #include "interpreter.hpp" 
 
-void Interpreter::operator()(std::unique_ptr<Expression> stmt) {
-   stmt->expression()->interpret(env);
-   return;
+void Interpreter::operator()(const std::unique_ptr<Expression>& stmt) {
+   stmt->expression()->interpret(m_env);
 }
 
-void Interpreter::operator()(std::unique_ptr<Print> stmt) {
-   Object value { stmt->expression()->interpret(env) };
+void Interpreter::operator()(const std::unique_ptr<Print>& stmt) {
+   Object value { stmt->expression()->interpret(m_env) };
    std::cout << value << '\n';
-   return;
 }
 
-void Interpreter::operator()(std::unique_ptr<Var> stmt) {
+void Interpreter::operator()(const std::unique_ptr<Var>& stmt) {
    Object value { std::monostate{} };
    ExprPtr expr { stmt->initializer() };
    if (expr) {
-      value = expr->interpret(env);
+      value = expr->interpret(m_env);
    }
-   env.define(stmt->name().lexeme(), value);
-   return;
+   m_env.define(stmt->name().lexeme(), value);
 }
 
-void Interpreter::operator()(std::monostate) {
-   return;
+void Interpreter::operator()(const std::unique_ptr<Block>& stmt) {
+   Interpreter interpreter { m_env };
+   for (const StmtPtr& statement : stmt->statements()) {
+      std::visit(interpreter, statement); 
+   }
 }
+
+void Interpreter::operator()(std::monostate) {}
 

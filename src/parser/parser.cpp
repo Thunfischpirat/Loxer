@@ -134,7 +134,9 @@ StmtPtr Parser::statement() {
    if (match(PRINT)) {
       return printStatement();
    }
-   // TODO: Support more statements.
+   if (match(LEFT_BRACE)) {
+      return std::make_unique<Block>(std::move(block()));
+   }
    return expressionStatement();
 }
 
@@ -148,6 +150,17 @@ StmtPtr Parser::expressionStatement() {
    ExprPtr expr { expression() };
    consume(SEMICOLON, "Expect ';' after expression.");
    return std::make_unique<Expression>(std::move(expr));
+}
+
+std::vector<StmtPtr> Parser::block() {
+   std::vector<StmtPtr> statements; 
+   
+   while (!check(RIGHT_BRACE) && !isAtEnd()) {
+      statements.push_back(std::move(declaration()));
+   }
+
+   consume(RIGHT_BRACE, "Expect '}' after block.");
+   return statements;
 }
 
 bool Parser::match(std::vector<TokenType> types) {

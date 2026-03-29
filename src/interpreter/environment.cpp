@@ -12,12 +12,21 @@ void Environment::assign(const Token& name, Object value) {
       return;
    }
 
+   if (m_enclosing.has_value()) {
+      m_enclosing->get().assign(name, value);
+      return;
+   }
+
    throw RuntimeError("Undefined variable '" + name.lexeme() + "'.", name);
 }
 
 Object Environment::get(const Token& name) {
    if (m_values.contains(name.lexeme())) {
       return m_values.at(name.lexeme());
+   }
+
+   if (m_enclosing.has_value()) {
+      return m_enclosing->get().get(name);
    }
    throw RuntimeError("Undefined variable '" + name.lexeme() + "'.", name);
 }

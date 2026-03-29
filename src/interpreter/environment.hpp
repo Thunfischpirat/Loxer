@@ -2,16 +2,27 @@
 #define ENVIRONMENT_HPP
 
 #include <unordered_map>
+#include <functional>
+#include <optional>
 #include <string>
 
 #include "../scanner/token.hpp"
 
+
 class Environment {
+
+
    private:
       std::unordered_map<std::string, Object> m_values {}; 
+      std::optional<std::reference_wrapper<Environment>> m_enclosing;
 
    public: 
       Environment() = default;
+
+      Environment(Environment& enclosing)
+      : m_enclosing{enclosing}
+      {
+      }
     
       void define(std::string name, Object value);
 
