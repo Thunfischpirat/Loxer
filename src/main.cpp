@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     std::cerr << std::unitbuf;
 
     if (argc < 3) {
-        std::cerr << "Usage: ./your_program {tokenize, parse, interpret} <filename>" << std::endl;
+        std::cerr << "Usage: ./main {tokenize, parse, interpret} <filename>" << std::endl;
         return 1;
     }
 
