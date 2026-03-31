@@ -9,6 +9,7 @@
 #include "../interpreter/environment.hpp"
 #include "../runtime_error.hpp"
 
+bool isTruthy(Object);
 
 class Expr {
    public:

@@ -171,8 +171,23 @@ void Scanner::identifier() {
 
    std::string text { m_source.substr(m_start, m_current - m_start) };
    auto it { m_keywords.find(text) };
-   if (it != m_keywords.end()) 
-      addToken(it->second);
+   if (it != m_keywords.end()) {
+      TokenType key { it->second };
+      switch(key) {
+         case TRUE: {
+            addToken(key, true);
+            return;
+         }
+         case FALSE: {
+            addToken(key, false);
+            return;
+         }
+         default: {
+            addToken(key);
+            return;
+         }
+      }
+   }
    else
       addToken(IDENTIFIER);
 }
