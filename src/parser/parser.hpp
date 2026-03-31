@@ -43,6 +43,8 @@ class Parser {
 
       std::vector<StmtPtr> block(); 
 
+      StmtPtr ifStatement();
+
       bool match(std::vector<TokenType> types);
  
       bool match(TokenType type);

@@ -137,6 +137,9 @@ StmtPtr Parser::statement() {
    if (match(LEFT_BRACE)) {
       return std::make_unique<Block>(std::move(block()));
    }
+   if (match(IF)) {
+      return ifStatement();
+   }
    return expressionStatement();
 }
 
@@ -161,6 +164,21 @@ std::vector<StmtPtr> Parser::block() {
 
    consume(RIGHT_BRACE, "Expect '}' after block.");
    return statements;
+}
+
+StmtPtr Parser::ifStatement() {
+   consume(LEFT_PAREN, "Expect '(' after 'if'.");
+   ExprPtr condition { expression() };
+   consume(RIGHT_PAREN, "Expect ')' after if condition.");
+   
+   StmtPtr thenBranch { statement() };
+   StmtPtr elseBranch { std::monostate{} };
+   
+   if (match(ELSE)) {
+      elseBranch = statement();
+   }
+   
+   return std::make_unique<If>(std::move(condition), std::move(thenBranch), std::move(elseBranch));
 }
 
 bool Parser::match(std::vector<TokenType> types) {

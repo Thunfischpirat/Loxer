@@ -52,11 +52,13 @@ class Var {
 };
 
 class Block;
+class If;
 
 using StmtPtr = std::variant<std::unique_ptr<Print>,
                              std::unique_ptr<Expression>,
                              std::unique_ptr<Var>,
                              std::unique_ptr<Block>,
+                             std::unique_ptr<If>,
                              std::monostate>;
 
 class Block {
@@ -70,6 +72,30 @@ class Block {
       
       const std::vector<StmtPtr>& statements() const {
          return m_statements;
+      }
+};
+
+class If {
+   private:
+      ExprPtr m_condition;
+      StmtPtr m_then;
+      StmtPtr m_else;
+   public:
+      If(ExprPtr condition, StmtPtr then, StmtPtr other)
+      : m_condition{std::move(condition)}, m_then{std::move(then)}, m_else{std::move(other)}
+      {
+      } 
+     
+      const ExprPtr& condition() const {
+         return m_condition;
+      }
+
+      const StmtPtr& thenBranch() const {
+         return m_then;
+      }
+
+      const StmtPtr& elseBranch() const {
+         return m_else;
       }
 };
 

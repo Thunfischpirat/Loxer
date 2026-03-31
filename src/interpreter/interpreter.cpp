@@ -25,5 +25,15 @@ void Interpreter::operator()(const std::unique_ptr<Block>& stmt) {
    }
 }
 
+void Interpreter::operator()(const std::unique_ptr<If>& stmt) { 
+   Interpreter interpreter { m_env };
+   if (isTruthy(stmt->condition()->interpret(m_env))) {
+      std::visit(interpreter, stmt->thenBranch());
+   }
+   else {
+      std::visit(interpreter, stmt->elseBranch());
+   }
+}
+
 void Interpreter::operator()(std::monostate) {}
 

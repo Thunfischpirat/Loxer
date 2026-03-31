@@ -22,6 +22,8 @@ class Interpreter {
 
       void operator()(const std::unique_ptr<Block>& stmt);
 
+      void operator()(const std::unique_ptr<If>& stmt);
+
       void operator()(std::monostate);
 
 }; 
