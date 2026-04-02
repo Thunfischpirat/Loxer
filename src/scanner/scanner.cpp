@@ -182,6 +182,10 @@ void Scanner::identifier() {
             addToken(key, false);
             return;
          }
+         case NIL: {
+            addToken(key, false);
+            return; 
+         }
          default: {
             addToken(key);
             return;
