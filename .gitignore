@@ -57,5 +57,10 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# Others
 build
 vcpkg_installed
+**/AGENTS.md
+*.txt
+main
+.codex
