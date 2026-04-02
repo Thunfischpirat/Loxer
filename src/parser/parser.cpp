@@ -7,7 +7,7 @@ ExprPtr Parser::expression() {
 }
 
 ExprPtr Parser::assignment() {
-   ExprPtr expr { equality() };
+   ExprPtr expr { disjunction() };
    
    if (match(EQUAL)) {
       Token equals { previous() };
@@ -21,6 +21,30 @@ ExprPtr Parser::assignment() {
       Lox::error(equals, "Invalid assignment target.");
    }
    return expr;
+}
+
+ExprPtr Parser::disjunction() {
+   ExprPtr expr { conjunction() };
+   
+   while (match(OR)) {
+      Token op { previous() };
+      ExprPtr right { conjunction() };
+      expr = std::make_unique<Logical>(std::move(expr), op, std::move(right));
+   }
+
+   return expr;
+}   
+
+ExprPtr Parser::conjunction() {
+   ExprPtr expr { equality() };
+   
+   while (match(AND)) {
+      Token op { previous() };
+      ExprPtr right = equality();
+      expr = std::make_unique<Logical>(std::move(expr), op, std::move(right));
+   }
+   
+   return expr;   
 }
 
 ExprPtr Parser::equality() {

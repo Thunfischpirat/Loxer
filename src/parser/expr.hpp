@@ -27,21 +27,33 @@ class Expr {
 
 using ExprPtr = std::unique_ptr<Expr>;
 
-class Binary final : public Expr {
-   private: 
+class Binary : public Expr {
+   protected: 
       ExprPtr m_left;
       Token m_op;
       ExprPtr m_right;
 
    public:
       Binary(ExprPtr left, Token op, ExprPtr right) 
-      : m_left{std::move(left)}, m_op{std::move(op)}, m_right{std::move(right)} 
+      : m_left{std::move(left)}, m_op{op}, m_right{std::move(right)} 
       {
       }
 
       std::string print() const override;
 
       Object interpret(Environment& env) const override; 
+};
+
+class Logical final: public Binary {
+
+   public:
+      Logical(ExprPtr left, Token op, ExprPtr right)
+      : Binary { std::move(left), op, std::move(right) }
+      {
+      }
+	 
+      Object interpret(Environment& env) const override;
+
 };
 
 class Unary final : public Expr {

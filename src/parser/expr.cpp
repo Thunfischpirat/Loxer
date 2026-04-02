@@ -56,6 +56,23 @@ Object Assign::interpret(Environment& env) const {
    return value;
 }
 
+Object Logical::interpret(Environment& env) const {
+   Object left { m_left->interpret(env) };
+
+   if (m_op.type() == OR) {
+      if (isTruthy(left)) {
+         return left;
+      }
+   }
+   else {
+      if (!isTruthy(left)) {
+         return left;
+      }
+   }
+ 
+   return m_right->interpret(env);
+}
+
 Object Binary::interpret(Environment& env) const {
    (void)env;
    Object left { m_left->interpret(env) };

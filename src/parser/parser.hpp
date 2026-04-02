@@ -19,6 +19,10 @@ class Parser {
 
       ExprPtr assignment();
 
+      ExprPtr disjunction();
+
+      ExprPtr conjunction();
+
       ExprPtr equality();
 
       ExprPtr comparison();
