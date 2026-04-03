@@ -3,7 +3,6 @@
 
 #include "expr.hpp"
 
-
 class Expression {
    private:
       ExprPtr m_expression;
@@ -13,8 +12,8 @@ class Expression {
       {
       }
 
-      ExprPtr expression() {
-         return std::move(m_expression);
+      const ExprPtr& expression() const {
+         return m_expression;
       }
 };
 
@@ -27,8 +26,8 @@ class Print {
       {
       }
 
-      ExprPtr expression() {
-         return std::move(m_expression);
+      const ExprPtr& expression() const {
+         return m_expression;
       }
 };
 
@@ -42,8 +41,8 @@ class Var {
       {
       }
 
-      ExprPtr initializer() {
-         return std::move(m_initializer);
+      const ExprPtr& initializer() const {
+         return m_initializer;
       }
       
       Token name() const {
@@ -53,12 +52,14 @@ class Var {
 
 class Block;
 class If;
+class While;
 
 using StmtPtr = std::variant<std::unique_ptr<Print>,
                              std::unique_ptr<Expression>,
                              std::unique_ptr<Var>,
                              std::unique_ptr<Block>,
                              std::unique_ptr<If>,
+                             std::unique_ptr<While>,
                              std::monostate>;
 
 class Block {
@@ -99,6 +100,23 @@ class If {
       }
 };
 
+class While {
+   private:
+      ExprPtr m_condition;
+      StmtPtr m_body; 
+   public:
+      While(ExprPtr condition, StmtPtr body)
+      : m_condition{std::move(condition)}, m_body{std::move(body)} 
+      {
+      }
 
+      const ExprPtr& condition() const {
+         return m_condition;
+      }
+
+      const StmtPtr& body() const {
+         return m_body;
+      }
+};
 
 #endif
