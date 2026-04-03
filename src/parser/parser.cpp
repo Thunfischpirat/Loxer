@@ -164,6 +164,9 @@ StmtPtr Parser::statement() {
    if (match(IF)) {
       return ifStatement();
    }
+   if (match(WHILE)) {
+      return whileStatement();
+   }
    return expressionStatement();
 }
 
@@ -203,6 +206,15 @@ StmtPtr Parser::ifStatement() {
    }
    
    return std::make_unique<If>(std::move(condition), std::move(thenBranch), std::move(elseBranch));
+}
+
+StmtPtr Parser::whileStatement() {
+   consume(LEFT_PAREN, "Expect '(' after 'while'.");
+   ExprPtr condition { expression() };
+   consume(RIGHT_PAREN, "Expect ')' after condition.");
+   StmtPtr body { statement() };
+ 
+   return std::make_unique<While>(std::move(condition), std::move(body));
 }
 
 bool Parser::match(std::vector<TokenType> types) {

@@ -26,12 +26,10 @@ Object Literal::interpret(Environment& env) const {
 }
 
 Object Grouping::interpret(Environment& env) const {
-   (void)env;
    return m_group->interpret(env);
 }
 
 Object Unary::interpret(Environment& env) const {
-   (void)env;
    Object right { m_expr->interpret(env) }; 
 
    switch (m_op.type()) {
@@ -74,7 +72,6 @@ Object Logical::interpret(Environment& env) const {
 }
 
 Object Binary::interpret(Environment& env) const {
-   (void)env;
    Object left { m_left->interpret(env) };
    Object right { m_right->interpret(env) };
    
