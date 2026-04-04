@@ -167,6 +167,9 @@ StmtPtr Parser::statement() {
    if (match(WHILE)) {
       return whileStatement();
    }
+   if (match(FOR)) {
+      return forStatement();
+   }
    return expressionStatement();
 }
 
@@ -215,6 +218,57 @@ StmtPtr Parser::whileStatement() {
    StmtPtr body { statement() };
  
    return std::make_unique<While>(std::move(condition), std::move(body));
+}
+
+StmtPtr Parser::forStatement() {
+   consume(LEFT_PAREN, "Expect '(' after 'for'.");
+   
+   StmtPtr initializer;
+   if (match(SEMICOLON)) {
+      initializer = std::monostate{};
+   }
+   else if (match(VAR)) {
+      initializer = varDeclaration();
+   }
+   else {
+      initializer = expressionStatement();
+   }
+
+   ExprPtr condition;
+   if (!check(SEMICOLON)) {
+      condition = expression();
+   }
+   consume(SEMICOLON, "Expect ';' after loop condition.");
+
+   ExprPtr increment;
+   if (!check(RIGHT_PAREN)) {
+      increment = expression();
+   }
+   consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+  
+   StmtPtr body { statement() };
+
+   if (increment != nullptr) {
+      std::vector<StmtPtr> statements;
+      statements.push_back(std::move(body));
+      statements.emplace_back(std::make_unique<Expression>(std::move(increment))); 
+      body = std::make_unique<Block>(std::move(statements));
+   }
+
+   if (condition == nullptr) {
+      condition = std::make_unique<Literal>(true);
+   }
+
+   body = std::make_unique<While>(std::move(condition), std::move(body));
+
+   if (!std::holds_alternative<std::monostate>(initializer)) {
+      std::vector<StmtPtr> statements;
+      statements.push_back(std::move(initializer));
+      statements.push_back(std::move(body));
+      body = std::make_unique<Block>(std::move(statements)); 
+   }
+   
+   return body;
 }
 
 bool Parser::match(std::vector<TokenType> types) {

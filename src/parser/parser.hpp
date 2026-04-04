@@ -51,6 +51,8 @@ class Parser {
 
       StmtPtr whileStatement();
 
+      StmtPtr forStatement();
+
       bool match(std::vector<TokenType> types);
  
       bool match(TokenType type);
