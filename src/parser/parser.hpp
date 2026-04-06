@@ -33,6 +33,10 @@ class Parser {
    
       ExprPtr unary();
 
+      ExprPtr call();
+
+      ExprPtr finishCall(ExprPtr callee);
+
       ExprPtr primary();
 
       StmtPtr declaration();

@@ -11,7 +11,6 @@
 
 class Environment {
 
-
    private:
       std::unordered_map<std::string, Object> m_values {}; 
       std::optional<std::reference_wrapper<Environment>> m_enclosing;

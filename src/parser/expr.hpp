@@ -2,32 +2,33 @@
 #define EXPR_HPP
 
 #include <memory>
+#include <variant>
 #include <optional>
 #include <functional>
 
 #include "../scanner/token.hpp"
-#include "../interpreter/environment.hpp"
 #include "../runtime_error.hpp"
 
-bool isTruthy(Object);
+class Binary;
+class Logical;
+class Unary;
+class Grouping;
+class Variable;
+class Assign;
+class Literal;
+class Call;
 
-class Expr {
-   public:
+using ExprPtr = std::variant<std::unique_ptr<Binary>,
+                             std::unique_ptr<Logical>,
+                             std::unique_ptr<Unary>,
+                             std::unique_ptr<Grouping>,
+                             std::unique_ptr<Variable>,
+                             std::unique_ptr<Assign>,
+                             std::unique_ptr<Literal>,
+                             std::unique_ptr<Call>,
+                             std::monostate>;
 
-      virtual ~Expr() = default;
-      
-      virtual std::string print() const = 0;
-
-      virtual Object interpret(Environment& env) const = 0;
-
-      friend std::ostream& operator<<(std::ostream& out, const Expr& expr) {
-	 return out << expr.print();
-      }
-};
-
-using ExprPtr = std::unique_ptr<Expr>;
-
-class Binary : public Expr {
+class Binary {
    protected: 
       ExprPtr m_left;
       Token m_op;
@@ -38,25 +39,25 @@ class Binary : public Expr {
       : m_left{std::move(left)}, m_op{op}, m_right{std::move(right)} 
       {
       }
+ 
+      const ExprPtr& left() const { return m_left; }
 
-      std::string print() const override;
-
-      Object interpret(Environment& env) const override; 
+      Token op() const { return m_op; }
+ 
+      const ExprPtr& right() const { return m_right; }
 };
 
-class Logical final: public Binary {
 
+class Logical final: public Binary {
    public:
       Logical(ExprPtr left, Token op, ExprPtr right)
       : Binary { std::move(left), op, std::move(right) }
       {
       }
-	 
-      Object interpret(Environment& env) const override;
-
 };
 
-class Unary final : public Expr {
+
+class Unary final {
    private:
       Token m_op;
       ExprPtr m_expr;
@@ -66,14 +67,14 @@ class Unary final : public Expr {
       : m_op{std::move(op)}, m_expr{std::move(expr)}
       {
       }
+
+      Token op() const { return m_op; }
      
-      std::string print() const override;
-
-      Object interpret(Environment& env) const override;
-
+      const ExprPtr& expr() const { return m_expr; }
 };
 
-class Grouping final : public Expr {
+
+class Grouping final {
    private:
       ExprPtr m_group;
 
@@ -83,13 +84,11 @@ class Grouping final : public Expr {
       {
       }
 
-      std::string print() const override;
-
-      Object interpret(Environment& env) const override;
-
+      const ExprPtr& group() const { return m_group; }
 };
 
-class Variable final : public Expr {
+
+class Variable final {
    private:
       Token m_name;
    public:
@@ -98,16 +97,11 @@ class Variable final : public Expr {
       {
       }
       
-      Token name() const {
-         return m_name;
-      }
-
-      std::string print() const override;
-    
-      Object interpret(Environment& env) const override;
+      Token name() const { return m_name; }
 };
 
-class Assign final: public Expr {
+
+class Assign final {
    private:
       Token m_name;
       ExprPtr m_value;
@@ -117,16 +111,13 @@ class Assign final: public Expr {
       {
       }
  
-      Token name() const {
-         return m_name;
-      }
-      
-      std::string print() const override;
+      Token name() const { return m_name; }
 
-      Object interpret(Environment& env) const override; 
+      const ExprPtr& value() const { return m_value; }
 };
 
-class Literal final : public Expr {
+
+class Literal final {
    private:
       Object m_lit;
  
@@ -135,10 +126,27 @@ class Literal final : public Expr {
       : m_lit{std::move(lit)}
       {
       }
-   
-      std::string print() const override;
 
-      Object interpret(Environment& env) const override;
+      Object lit() const { return m_lit; }
+};
+
+
+class Call final {
+   private:
+      ExprPtr m_callee;
+      Token m_paren;
+      std::vector<ExprPtr> m_arguments;
+   public:
+      Call(ExprPtr callee, Token paren, std::vector<ExprPtr> arguments) 
+      : m_callee{std::move(callee)}, m_paren{paren}, m_arguments{std::move(arguments)}
+      {
+      }
+   
+      const ExprPtr& callee() const { return m_callee; }
+
+      Token const paren() const { return m_paren; }
+
+      const std::vector<ExprPtr>& arguments() const { return m_arguments; }
 };
 
 #endif

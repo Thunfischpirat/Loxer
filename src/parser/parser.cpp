@@ -13,8 +13,8 @@ ExprPtr Parser::assignment() {
       Token equals { previous() };
       ExprPtr value { assignment() };
   
-      if (auto var = dynamic_cast<Variable*>(expr.get())) {
-         Token name { var->name() }; 
+      if (std::holds_alternative<std::unique_ptr<Variable>>(expr)) {
+         Token name { std::get<std::unique_ptr<Variable>>(expr)->name() }; 
          return std::make_unique<Assign>(name, std::move(value)); 
       }
       
@@ -106,7 +106,38 @@ ExprPtr Parser::unary() {
       ExprPtr right { unary() };
       return std::make_unique<Unary>(op, std::move(right));
    }
-   return primary();
+   return call();
+}
+
+ExprPtr Parser::call() {
+   ExprPtr expr { primary() };  
+   
+   while (true) {
+      if (match(LEFT_PAREN)) {
+         expr = finishCall(std::move(expr));
+      }
+      else {
+         break;
+      }
+   }
+ 
+   return expr;
+}
+
+ExprPtr Parser::finishCall(ExprPtr callee) {
+   std::vector<ExprPtr> arguments;
+   if (!check(RIGHT_PAREN)) {
+      do {
+         if (arguments.size() >= 255) {
+            Lox::error(peek(), "Can't have more than 255 arguments.");
+         }
+         arguments.emplace_back(std::move(expression()));
+      } while (match(COMMA));
+   }
+
+   Token paren { consume(RIGHT_PAREN, "Expect ')' after arguments.") };
+
+   return std::make_unique<Call>(std::move(callee), std::move(paren), std::move(arguments));
 }
 
 ExprPtr Parser::primary() {
@@ -144,7 +175,7 @@ StmtPtr Parser::declaration() {
 StmtPtr Parser::varDeclaration() {
    Token name { consume(IDENTIFIER, "Expect variable name.") };
 
-   ExprPtr initializer { nullptr };
+   ExprPtr initializer { std::monostate{} };
    
    if (match(EQUAL)) {
       initializer = std::move(expression());
@@ -248,14 +279,14 @@ StmtPtr Parser::forStatement() {
   
    StmtPtr body { statement() };
 
-   if (increment != nullptr) {
+   if (!std::holds_alternative<std::monostate>(increment)) {
       std::vector<StmtPtr> statements;
       statements.push_back(std::move(body));
       statements.emplace_back(std::make_unique<Expression>(std::move(increment))); 
       body = std::make_unique<Block>(std::move(statements));
    }
 
-   if (condition == nullptr) {
+   if (std::holds_alternative<std::monostate>(condition)) {
       condition = std::make_unique<Literal>(true);
    }
 
