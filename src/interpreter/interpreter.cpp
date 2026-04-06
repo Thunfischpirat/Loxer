@@ -40,10 +40,17 @@ Object Interpreter::operator()(const std::unique_ptr<Var>& stmt) {
 }
 
 Object Interpreter::operator()(const std::unique_ptr<Block>& stmt) {
-   Interpreter interpreter { m_env };
+
+   Environment env_old = m_env;
+   this->m_env = { };
+   this->m_env.m_enclosing = env_old;
+
    for (const StmtPtr& statement : stmt->statements()) {
       std::visit(*this, statement); 
    }
+
+   this->m_env = env_old;
+
    return std::monostate{};
 }
 
@@ -59,10 +66,17 @@ Object Interpreter::operator()(const std::unique_ptr<If>& stmt) {
 }
 
 Object Interpreter::operator()(const std::unique_ptr<While>& stmt) {
-   Interpreter interpreter { m_env };
+
+   Environment env_old = m_env;
+   this->m_env = { };
+   this->m_env.m_enclosing = env_old;
+
    while (isTruthy(std::visit(*this, stmt->condition()))) {
       std::visit(*this, stmt->body());
    }
+
+   this->m_env = env_old;
+
    return std::monostate{};
 }
 

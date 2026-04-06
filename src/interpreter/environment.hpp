@@ -9,25 +9,18 @@
 #include "../scanner/token.hpp"
 
 
-class Environment {
+struct Environment {
 
-   private:
-      std::unordered_map<std::string, Object> m_values {}; 
-      std::optional<std::reference_wrapper<Environment>> m_enclosing;
+   std::unordered_map<std::string, Object> m_values {}; 
+   std::optional<std::reference_wrapper<Environment>> m_enclosing;
 
-   public: 
-      Environment() = default;
+   Environment() = default;
 
-      Environment(Environment& enclosing)
-      : m_enclosing{enclosing}
-      {
-      }
-    
-      void define(std::string name, Object value);
+   void define(std::string name, Object value);
 
-      void assign(const Token& name, Object value);
-  
-      Object get(const Token& name); 
+   void assign(const Token& name, Object value);
+
+   Object get(const Token& name); 
       
 };
 

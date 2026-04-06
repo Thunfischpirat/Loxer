@@ -1,11 +1,8 @@
 #include "environment.hpp"
 #include "../parser/stmt.hpp"
 
-class Interpreter {
-   private:
+struct Interpreter {
       Environment m_env { Environment() }; 
-
-   public:
 
       Interpreter() = default;
 
