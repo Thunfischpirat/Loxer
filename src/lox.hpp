@@ -1,8 +1,9 @@
 #include <string>
 #include <vector>
 
-#include "scanner/token.hpp"
+#include "scanner/scanner.hpp"
 #include "parser/parser.hpp"
+#include "interpreter/interpreter.hpp"
 
 class Lox {
 
