@@ -2,6 +2,7 @@
 #define TOKEN_H
 
 #include <variant>
+#include <memory> 
 #include <string>
 #include <iostream>
 #include <map>
@@ -28,7 +29,8 @@ enum TokenType {
   END_OF_FILE,
 };
 
-using Object  = std::variant<std::monostate, bool, float, std::string>;
+struct LoxCallable;
+using Object  = std::variant<std::monostate, bool, float, std::string, std::shared_ptr<LoxCallable>>;
 
 class Token {
    private:

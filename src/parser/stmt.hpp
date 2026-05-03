@@ -53,6 +53,7 @@ class Var {
 class Block;
 class If;
 class While;
+class Function;
 
 using StmtPtr = std::variant<std::unique_ptr<Print>,
                              std::unique_ptr<Expression>,
@@ -60,6 +61,7 @@ using StmtPtr = std::variant<std::unique_ptr<Print>,
                              std::unique_ptr<Block>,
                              std::unique_ptr<If>,
                              std::unique_ptr<While>,
+                             std::shared_ptr<Function>,
                              std::monostate>;
 
 class Block {
@@ -115,6 +117,30 @@ class While {
       }
 
       const StmtPtr& body() const {
+         return m_body;
+      }
+};
+
+class Function {
+   private:
+      Token m_name;
+      std::vector<Token> m_params;
+      std::vector<StmtPtr> m_body;
+   public:
+      Function(Token name, std::vector<Token> params, std::vector<StmtPtr> body)
+      : m_name{name}, m_params{std::move(params)}, m_body{std::move(body)}
+      {
+      }
+
+      Token name() const {
+         return m_name;
+      }
+
+      const std::vector<Token>& params() const {
+         return m_params;
+      }
+
+      const std::vector<StmtPtr>& body() const {
          return m_body;
       }
 };

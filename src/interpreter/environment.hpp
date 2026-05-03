@@ -8,13 +8,22 @@
 
 #include "../scanner/token.hpp"
 
-
 struct Environment {
 
-   std::unordered_map<std::string, Object> m_values {}; 
-   std::optional<std::reference_wrapper<Environment>> m_enclosing;
+   std::unordered_map<std::string, Object> values {}; 
+   std::optional<std::reference_wrapper<Environment>> enclosing;
 
    Environment() = default;
+
+   explicit Environment(Environment& env) 
+   : enclosing{std::ref(env)}
+   {
+   }
+
+   Environment(const Environment& other)
+   : values{other.values}, enclosing{other.enclosing}
+   {
+   }
 
    void define(std::string name, Object value);
 

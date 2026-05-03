@@ -1,14 +1,21 @@
+#ifndef INTERPRETER
+#define INTERPRETER
+
 #include "environment.hpp"
+#include "lox_callable.hpp"
 #include "../parser/stmt.hpp"
 
+
 struct Interpreter {
-      Environment m_env { Environment() }; 
 
-      Interpreter() = default;
+      Environment globals { Environment() };
 
-      Interpreter(Environment& env)
-      : m_env{env}
-      {
+      Environment env; 
+
+      Interpreter() {
+         std::shared_ptr<LoxCallable> clock { std::make_shared<Time>(Time { }) };
+         globals.define("clock", clock); 
+         env.enclosing = globals;
       }
 
       Object operator()(const std::unique_ptr<Expression>& stmt); 
@@ -22,6 +29,8 @@ struct Interpreter {
       Object operator()(const std::unique_ptr<If>& stmt);
 
       Object operator()(const std::unique_ptr<While>& stmt);
+
+      Object operator()(const std::shared_ptr<Function>& stmt);
 
       Object operator()(const std::unique_ptr<Binary>& expr);
 
@@ -41,4 +50,8 @@ struct Interpreter {
 
       Object operator()(std::monostate);
 
+      void executeBlock(const std::vector<StmtPtr>& statements, Environment& environment);
+
 }; 
+
+#endif

@@ -144,7 +144,7 @@ class Call final {
    
       const ExprPtr& callee() const { return m_callee; }
 
-      Token const paren() const { return m_paren; }
+      Token paren() const { return m_paren; }
 
       const std::vector<ExprPtr>& arguments() const { return m_arguments; }
 };

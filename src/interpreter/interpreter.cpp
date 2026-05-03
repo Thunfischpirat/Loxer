@@ -1,5 +1,6 @@
 #include "interpreter.hpp" 
 
+
 bool isTruthy(Object object) {
    if (std::holds_alternative<std::monostate>(object)) {
       return false;
@@ -35,27 +36,17 @@ Object Interpreter::operator()(const std::unique_ptr<Var>& stmt) {
    if (!std::holds_alternative<std::monostate>(expr)) {
       value = std::visit(*this, expr);
    }
-   m_env.define(stmt->name().lexeme(), value);
+   env.define(stmt->name().lexeme(), value);
    return std::monostate{};
 }
 
 Object Interpreter::operator()(const std::unique_ptr<Block>& stmt) {
-
-   Environment env_old = m_env;
-   this->m_env = { };
-   this->m_env.m_enclosing = env_old;
-
-   for (const StmtPtr& statement : stmt->statements()) {
-      std::visit(*this, statement); 
-   }
-
-   this->m_env = env_old;
-
+   Environment block_env { env };
+   executeBlock(stmt->statements(), block_env); 
    return std::monostate{};
 }
 
 Object Interpreter::operator()(const std::unique_ptr<If>& stmt) { 
-   Interpreter interpreter { m_env };
    if (isTruthy(std::visit(*this, stmt->condition()))) {
       std::visit(*this, stmt->thenBranch());
    }
@@ -67,16 +58,22 @@ Object Interpreter::operator()(const std::unique_ptr<If>& stmt) {
 
 Object Interpreter::operator()(const std::unique_ptr<While>& stmt) {
 
-   Environment env_old = m_env;
-   this->m_env = { };
-   this->m_env.m_enclosing = env_old;
+   Environment env_old = env;
+   this->env = { };
+   this->env.enclosing = env_old;
 
    while (isTruthy(std::visit(*this, stmt->condition()))) {
       std::visit(*this, stmt->body());
    }
 
-   this->m_env = env_old;
+   this->env = env_old;
 
+   return std::monostate{};
+}
+
+Object Interpreter::operator()(const std::shared_ptr<Function>& stmt) {
+   std::shared_ptr<LoxCallable> function { std::make_shared<LoxFunction>(stmt) };
+   env.define(stmt->name().lexeme(), function);
    return std::monostate{};
 }
 
@@ -106,12 +103,12 @@ Object Interpreter::operator()(const std::unique_ptr<Unary>& expr) {
 }
 
 Object Interpreter::operator()(const std::unique_ptr<Variable>& expr) {
-   return m_env.get(expr->name());
+   return env.get(expr->name());
 }
 
 Object Interpreter::operator()(const std::unique_ptr<Assign>& expr) {
    Object value { std::visit(*this, expr->value()) }; 
-   m_env.assign(expr->name(), value);
+   env.assign(expr->name(), value);
    return value;
 }
 
@@ -134,28 +131,30 @@ Object Interpreter::operator()(const std::unique_ptr<Logical>& expr) {
 
 Object Interpreter::operator()(const std::unique_ptr<Call>& expr) {
    Object callee { std::visit(*this, expr->callee()) };
-   std::vector<Object> arguments;
 
+   std::vector<Object> arguments;
    for (const ExprPtr& arg : expr->arguments()) {
       arguments.push_back(std::visit(*this, arg));
    }
-/*
-   if (!std::holds_alternative<LoxCallable>(callee)) {
-      throw RuntimeError("Can only call functions and classes.", m_paren);
+
+   if (!std::holds_alternative<std::shared_ptr<LoxCallable>>(callee)) {
+      throw RuntimeError("Can only call functions and classes.", expr->paren());
    }
 
-   if (arguments.size() != function.arity()) {
-      throw RuntimeError("Expected " 
-                         + function.arity() 
-                         + " arguments but got " 
-                         + arguments.size()
-                         +  ".");
+   std::shared_ptr<LoxCallable> function { std::get<std::shared_ptr<LoxCallable>>(callee) };
+
+   if (arguments.size() != function->arity()) {
+      const std::string error_msg { "Expected " 
+                         	    + std::to_string(function->arity()) 
+                         	    + " arguments but got " 
+                         	    + std::to_string(arguments.size())
+                         	    +  "." };
+      throw RuntimeError(error_msg,
+                         expr->paren());
    }
-   
-   // TODO:Implement LoxCallable
-   LoxCallable function { static_cast<LoxCallable>(callee) };
-*/
-   return callee; // function.call(env, arguments);
+
+
+   return function->call(*this, arguments);
 }
 
 Object Interpreter::operator()(const std::unique_ptr<Binary>& expr) {
@@ -207,3 +206,13 @@ Object Interpreter::operator()(const std::unique_ptr<Binary>& expr) {
 
 Object Interpreter::operator()(std::monostate) { return std::monostate{}; }
 
+void Interpreter::executeBlock(const std::vector<StmtPtr>& statements, Environment& environment) {
+   Environment previous { this->env };
+   this->env = environment;
+
+   for (const StmtPtr& statement : statements) {
+      std::visit(*this, statement);
+   }
+
+   this->env = previous;
+}

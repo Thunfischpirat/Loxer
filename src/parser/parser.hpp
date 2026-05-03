@@ -57,6 +57,8 @@ class Parser {
 
       StmtPtr forStatement();
 
+      std::shared_ptr<Function> function(const std::string& kind);
+
       bool match(std::vector<TokenType> types);
  
       bool match(TokenType type);
