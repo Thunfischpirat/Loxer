@@ -1,0 +1,39 @@
+name: jlox tests
+
+on:
+  push:
+
+jobs:
+  chap10-functions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout loxer
+        uses: actions/checkout@v4
+
+      - name: Checkout Crafting Interpreters
+        uses: actions/checkout@v4
+        with:
+          repository: munificent/craftinginterpreters
+          ref: 4a840f70f69c6ddd17cfef4f6964f8e1bcd8c3d4
+          path: craftinginterpreters
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 2.19.6
+
+      - name: Build loxer
+        run: make
+
+      - name: Install upstream test dependencies
+        run: |
+          cd craftinginterpreters/tool
+          dart pub get
+
+      - name: Run chapter 10 function tests
+        run: |
+          cd craftinginterpreters
+          dart tool/bin/test.dart chap10_functions \
+            --interpreter "$GITHUB_WORKSPACE/build/release/loxer" \
+            --arguments interpret
