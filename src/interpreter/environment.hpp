@@ -2,21 +2,20 @@
 #define ENVIRONMENT_HPP
 
 #include <unordered_map>
-#include <functional>
-#include <optional>
 #include <string>
+#include <memory>
 
 #include "../scanner/token.hpp"
 
 struct Environment {
 
    std::unordered_map<std::string, Object> values {}; 
-   std::optional<std::reference_wrapper<Environment>> enclosing;
+   std::shared_ptr<Environment> enclosing;
 
    Environment() = default;
 
-   explicit Environment(Environment& env) 
-   : enclosing{std::ref(env)}
+   explicit Environment(std::shared_ptr<Environment> env) 
+   : enclosing{env}
    {
    }
 
@@ -31,6 +30,7 @@ struct Environment {
 
    Object get(const Token& name); 
       
+   Environment& operator=(const Environment& other) = default;
 };
 
 #endif

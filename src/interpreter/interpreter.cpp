@@ -36,12 +36,12 @@ Object Interpreter::operator()(const std::unique_ptr<Var>& stmt) {
    if (!std::holds_alternative<std::monostate>(expr)) {
       value = std::visit(*this, expr);
    }
-   env.define(stmt->name().lexeme(), value);
+   env->define(stmt->name().lexeme(), value);
    return std::monostate{};
 }
 
 Object Interpreter::operator()(const std::unique_ptr<Block>& stmt) {
-   Environment block_env { env };
+   auto block_env { std::make_shared<Environment>(env) };
    executeBlock(stmt->statements(), block_env); 
    return std::monostate{};
 }
@@ -57,23 +57,15 @@ Object Interpreter::operator()(const std::unique_ptr<If>& stmt) {
 }
 
 Object Interpreter::operator()(const std::unique_ptr<While>& stmt) {
-
-   Environment env_old = env;
-   this->env = { };
-   this->env.enclosing = env_old;
-
    while (isTruthy(std::visit(*this, stmt->condition()))) {
       std::visit(*this, stmt->body());
    }
-
-   this->env = env_old;
-
    return std::monostate{};
 }
 
 Object Interpreter::operator()(const std::shared_ptr<Function>& stmt) {
    std::shared_ptr<LoxCallable> function { std::make_shared<LoxFunction>(stmt) };
-   env.define(stmt->name().lexeme(), function);
+   env->define(stmt->name().lexeme(), function);
    return std::monostate{};
 }
 
@@ -103,12 +95,12 @@ Object Interpreter::operator()(const std::unique_ptr<Unary>& expr) {
 }
 
 Object Interpreter::operator()(const std::unique_ptr<Variable>& expr) {
-   return env.get(expr->name());
+   return env->get(expr->name());
 }
 
 Object Interpreter::operator()(const std::unique_ptr<Assign>& expr) {
    Object value { std::visit(*this, expr->value()) }; 
-   env.assign(expr->name(), value);
+   env->assign(expr->name(), value);
    return value;
 }
 
@@ -206,8 +198,10 @@ Object Interpreter::operator()(const std::unique_ptr<Binary>& expr) {
 
 Object Interpreter::operator()(std::monostate) { return std::monostate{}; }
 
-void Interpreter::executeBlock(const std::vector<StmtPtr>& statements, Environment& environment) {
-   Environment previous { this->env };
+void Interpreter::executeBlock(const std::vector<StmtPtr>& statements, 
+                               std::shared_ptr<Environment> environment) 
+{
+   std::shared_ptr<Environment> previous { this->env };
    this->env = environment;
 
    for (const StmtPtr& statement : statements) {

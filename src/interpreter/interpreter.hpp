@@ -8,14 +8,13 @@
 
 struct Interpreter {
 
-      Environment globals { Environment() };
+      std::shared_ptr<Environment> globals { std::make_shared<Environment>() };
 
-      Environment env; 
+      std::shared_ptr<Environment> env { globals }; 
 
       Interpreter() {
          std::shared_ptr<LoxCallable> clock { std::make_shared<Time>(Time { }) };
-         globals.define("clock", clock); 
-         env.enclosing = globals;
+         globals->define("clock", clock); 
       }
 
       Object operator()(const std::unique_ptr<Expression>& stmt); 
@@ -50,7 +49,7 @@ struct Interpreter {
 
       Object operator()(std::monostate);
 
-      void executeBlock(const std::vector<StmtPtr>& statements, Environment& environment);
+      void executeBlock(const std::vector<StmtPtr>& statements, std::shared_ptr<Environment> environment);
 
 }; 
 

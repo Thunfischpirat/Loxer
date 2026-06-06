@@ -13,7 +13,7 @@ class LoxCallable {
   public: 
      virtual Object call(Interpreter& interpreter, std::vector<Object>& arguments) const = 0;
 
-     virtual int arity() const = 0;
+     virtual std::size_t arity() const = 0;
 
      ~LoxCallable() = default;
 };
@@ -29,7 +29,7 @@ class LoxFunction : public LoxCallable {
 
       Object call(Interpreter& interpreter, std::vector<Object>& arguments) const override;
 
-      int arity() const override;
+      std::size_t arity() const override;
 };
 
 class Time : public LoxCallable {
@@ -38,7 +38,7 @@ class Time : public LoxCallable {
 
       Object call(Interpreter& interpreter, std::vector<Object>& arguments) const override; 
       
-      int arity() const override { return 0; }
+      std::size_t arity() const override { return 0; }
 };
 
 #endif
