@@ -30,7 +30,7 @@ $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
-	$(CPP) $(CPPFLAGS) -c $< -o $@
+	$(CPP) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: clean release debug
 

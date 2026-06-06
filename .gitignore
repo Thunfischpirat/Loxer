@@ -64,3 +64,5 @@ vcpkg_installed
 *.txt
 main
 .codex
+completions/
+loxer
