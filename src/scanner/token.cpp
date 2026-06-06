@@ -63,10 +63,13 @@ std::ostream& operator<<(std::ostream& os, const TokenType& type) {
 
 std::ostream& operator<<(std::ostream& os, const Object& literal) {
    if (std::holds_alternative<bool>(literal)) {
-	os << std::get<bool>(literal);
+	os << std::boolalpha << std::get<bool>(literal);
    } else if (std::holds_alternative<float>(literal)) {
 	os << std::get<float>(literal);
-   } else {
+   } else if (std::holds_alternative<std::monostate>(literal)) {
+        os << "nil";
+   }
+   else {
 	os << std::get<std::string>(literal);
    }
    return os;
