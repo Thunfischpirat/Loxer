@@ -183,7 +183,7 @@ void Scanner::identifier() {
             return;
          }
          case NIL: {
-            addToken(key);
+            addToken(key, std::monostate{});
             return; 
          }
          default: {
