@@ -31,6 +31,8 @@ struct Interpreter {
 
       Object operator()(const std::shared_ptr<Function>& stmt);
 
+      Object operator()(const std::unique_ptr<Return>& stmt);
+
       Object operator()(const std::unique_ptr<Binary>& expr);
 
       Object operator()(const std::unique_ptr<Logical>& expr);

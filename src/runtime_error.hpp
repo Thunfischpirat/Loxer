@@ -1,6 +1,8 @@
+#ifndef RUNTIME_ERROR_HPP
+#define RUNTIME_ERROR_HPP
+
 #include <stdexcept>
 #include <string>
-#include <string_view>
 
 #include "scanner/token.hpp"
 
@@ -18,3 +20,5 @@ class RuntimeError : public std::runtime_error {
          return m_token;
       }
 };
+
+#endif

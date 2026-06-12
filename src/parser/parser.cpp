@@ -204,6 +204,9 @@ StmtPtr Parser::statement() {
    if (match(FOR)) {
       return forStatement();
    }
+   if (match(RETURN)) {
+      return returnStatement();
+   }
    return expressionStatement();
 }
 
@@ -303,6 +306,17 @@ StmtPtr Parser::forStatement() {
    }
    
    return body;
+}
+
+StmtPtr Parser::returnStatement() {
+   Token keyword { previous() };
+   ExprPtr value { std::monostate{} };
+   if (!check(SEMICOLON)) {
+      value = expression(); 
+   }
+
+   consume(SEMICOLON, "Expect ';' after return value.");
+   return std::make_unique<Return>(keyword, std::move(value));
 }
 
 std::shared_ptr<Function> Parser::function(const std::string& kind) {

@@ -1,4 +1,5 @@
 #include "interpreter.hpp" 
+#include "return.hpp"
 
 
 bool isTruthy(Object object) {
@@ -63,8 +64,17 @@ Object Interpreter::operator()(const std::unique_ptr<While>& stmt) {
    return std::monostate{};
 }
 
+Object Interpreter::operator()(const std::unique_ptr<Return>& stmt) {
+   Object value { std::monostate{} };
+   const ExprPtr& expr { stmt->value() };
+   if (!std::holds_alternative<std::monostate>(expr)) {
+      value = std::visit(*this, expr);
+   }
+   throw ReturnE(value);
+}
+
 Object Interpreter::operator()(const std::shared_ptr<Function>& stmt) {
-   std::shared_ptr<LoxCallable> function { std::make_shared<LoxFunction>(stmt) };
+   std::shared_ptr<LoxCallable> function { std::make_shared<LoxFunction>(stmt, this->env) };
    env->define(stmt->name().lexeme(), function);
    return std::monostate{};
 }
@@ -205,7 +215,13 @@ void Interpreter::executeBlock(const std::vector<StmtPtr>& statements,
    this->env = environment;
 
    for (const StmtPtr& statement : statements) {
-      std::visit(*this, statement);
+      try {
+         std::visit(*this, statement);
+      }
+      catch (...) {
+         this->env = previous;
+         throw;
+      }
    }
 
    this->env = previous;

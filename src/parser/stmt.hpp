@@ -50,6 +50,25 @@ class Var {
       }
 };
 
+class Return {
+   private:
+      Token m_keyword;
+      ExprPtr m_value;
+   public:
+      Return(Token keyword, ExprPtr value)
+      : m_keyword{keyword}, m_value{std::move(value)}
+      {
+      }
+
+      Token keyword() const {
+         return m_keyword;
+      }
+
+      const ExprPtr& value() const {
+         return m_value;
+      }
+};
+
 class Block;
 class If;
 class While;
@@ -61,6 +80,7 @@ using StmtPtr = std::variant<std::unique_ptr<Print>,
                              std::unique_ptr<Block>,
                              std::unique_ptr<If>,
                              std::unique_ptr<While>,
+                             std::unique_ptr<Return>,
                              std::shared_ptr<Function>,
                              std::monostate>;
 

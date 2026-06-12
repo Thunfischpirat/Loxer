@@ -6,6 +6,7 @@
 
 #include "../scanner/token.hpp"
 #include "../parser/stmt.hpp"
+#include "environment.hpp"
 
 struct Interpreter;
 
@@ -21,9 +22,10 @@ class LoxCallable {
 class LoxFunction : public LoxCallable {
   private:
        const std::shared_ptr<Function> m_declaration;
+       const std::shared_ptr<Environment> m_closure;
   public: 
-      explicit LoxFunction(const std::shared_ptr<Function> declaration)
-      : m_declaration{declaration}
+      explicit LoxFunction(const std::shared_ptr<Function> declaration, std::shared_ptr<Environment> closure)
+      : m_declaration{declaration} , m_closure{closure}
       {
       }
 

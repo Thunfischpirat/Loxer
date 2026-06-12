@@ -2,6 +2,7 @@
 
 #include "lox_callable.hpp"
 #include "interpreter.hpp"
+#include "return.hpp"
 
 Object Time::call(Interpreter& interpreter, std::vector<Object>& arguments) const {
    (void)interpreter;
@@ -12,13 +13,19 @@ Object Time::call(Interpreter& interpreter, std::vector<Object>& arguments) cons
 }
 
 Object LoxFunction::call(Interpreter& interpreter, std::vector<Object>& arguments) const {
-   auto environment { std::make_shared<Environment>(interpreter.globals) };
+   auto environment { std::make_shared<Environment>(m_closure) };
    for (std::size_t i { 0 }; i < m_declaration->params().size(); i++) {
       environment->define(m_declaration->params()[i].lexeme(), 
                          arguments[i]);
    }
 
-   interpreter.executeBlock(m_declaration->body(), environment);
+   try {
+      interpreter.executeBlock(m_declaration->body(), environment);
+   }
+   catch (const ReturnE& returnValue) {
+      return returnValue.value();
+   }
+
    return std::monostate{};
 }
 
