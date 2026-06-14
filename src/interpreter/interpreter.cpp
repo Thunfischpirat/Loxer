@@ -15,7 +15,7 @@ bool isTruthy(Object object) {
 template <typename T>
 bool checkType(Object object, Token token) {
    if (!std::holds_alternative<T>(object)) {
-      throw RuntimeError("Operand type incorrect", token);
+      throw RuntimeError("Operands must be numbers.", token);
    }
    return true;
 }
@@ -94,8 +94,10 @@ Object Interpreter::operator()(const std::unique_ptr<Unary>& expr) {
 
    switch (m_op.type()) {
       case MINUS:
-         checkType<float>(right, m_op);
-         return std::get<float>(right);
+         if (!(std::holds_alternative<float>(right))) {
+            throw RuntimeError("Operand must be a number.", m_op);
+         }
+         return -std::get<float>(right);
       case BANG:
          return !isTruthy(right);
       default:
@@ -176,8 +178,7 @@ Object Interpreter::operator()(const std::unique_ptr<Binary>& expr) {
          if (std::holds_alternative<std::string>(left) && std::holds_alternative<std::string>(right)) {
             return std::get<std::string>(left) + std::get<std::string>(right);
          }
-         throw RuntimeError("Operand type incorrect", m_op);
-         break;
+         throw RuntimeError("Operands must be two numbers or two strings.", m_op);
       case SLASH:
          checkType<float>(left, m_op) && checkType<float>(right, m_op);
          return std::get<float>(left) / std::get<float>(right);

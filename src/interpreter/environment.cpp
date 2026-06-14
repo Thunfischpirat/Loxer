@@ -3,7 +3,12 @@
 
 
 void Environment::define(std::string name, Object value) {
-   values.insert({name, value});
+  if (values.contains(name)) {
+     values.insert_or_assign(name, value);
+     return;
+  }
+
+  values.insert({name, value});
 }
 
 void Environment::assign(const Token& name, Object value) {

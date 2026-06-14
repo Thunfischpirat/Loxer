@@ -18,8 +18,13 @@ void Lox::error(Token token, std::string_view message) {
    }
 }
 
+void Lox::runtimeError(const RuntimeError& error) {
+   std::cerr << error.what() << "\n[line " << error.token().line() << "]";
+   //m_hadRuntimeError;
+}
+
 void Lox::report(std::size_t line, std::string where, std::string_view message) {
-   std::cerr << "[line " << line << "] Error" << where << ": " << message << std::endl;
+   std::cerr << "[line " << line << "] Error" << where << ": " << message << '\n'; 
    m_hadError = true;
 }
 
@@ -37,11 +42,6 @@ std::vector<StmtPtr> Lox::parse(std::string source) {
 std::vector<Token> Lox::tokenize(std::string source) {
    Scanner scanner { source };
    std::vector<Token> tokens = scanner.scanTokens();
-    
-   if (m_hadError) {
-      std::exit(65);
-   }
-
    return tokens;
    
 }
@@ -55,7 +55,7 @@ void Lox::interpret(std::string source) {
       }
    }
    catch (const RuntimeError& e) {
-      error(e.token(), e.what());	 
+      runtimeError(e);	 
       std::exit(70);
    }
 }

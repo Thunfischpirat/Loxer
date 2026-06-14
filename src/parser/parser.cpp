@@ -155,8 +155,8 @@ ExprPtr Parser::primary() {
       consume(RIGHT_PAREN, "Expect ')' after expression.");
       return std::make_unique<Grouping>(std::move(expr));
    }
-   Lox::error(peek(), "Expected expression.");
-   throw ParserError { "Expected expression. " };
+   Lox::error(peek(), "Expect expression.");
+   throw ParserError { "Expect expression. " };
 }
 
 StmtPtr Parser::declaration() {
@@ -271,13 +271,13 @@ StmtPtr Parser::forStatement() {
       initializer = expressionStatement();
    }
 
-   ExprPtr condition;
+   ExprPtr condition { std::monostate{} };
    if (!check(SEMICOLON)) {
       condition = expression();
    }
    consume(SEMICOLON, "Expect ';' after loop condition.");
 
-   ExprPtr increment;
+   ExprPtr increment { std::monostate{} };
    if (!check(RIGHT_PAREN)) {
       increment = expression();
    }
@@ -388,8 +388,7 @@ void Parser::synchronize() {
          case RETURN:
             return;
          default:
-            // TODO: Handle other Token types
-            return;
+            break;
       }
       
       advance();

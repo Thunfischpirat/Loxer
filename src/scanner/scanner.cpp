@@ -96,7 +96,7 @@ void Scanner::scanToken() {
 	 else if (isAlpha(c))
  	    identifier();
 	 else
-            Lox::error(m_line, "Unexpected character: "s + c);  
+            Lox::error(m_line, "Unexpected character.");  
 	 break;
    }
 }
@@ -124,7 +124,8 @@ void Scanner::string() {
    }      
 
    if (isAtEnd()) {
-      Lox::error(m_line, "Unterminated string");
+      Lox::error(m_line, "Unterminated string.");
+      return;
    }
 
    advance();

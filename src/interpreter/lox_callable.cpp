@@ -12,6 +12,10 @@ Object Time::call(Interpreter& interpreter, std::vector<Object>& arguments) cons
    return static_cast<float>(n_ticks); 
 }
 
+std::string Time::toString() const {
+   return "<native fn>";
+}
+
 Object LoxFunction::call(Interpreter& interpreter, std::vector<Object>& arguments) const {
    auto environment { std::make_shared<Environment>(m_closure) };
    for (std::size_t i { 0 }; i < m_declaration->params().size(); i++) {
@@ -31,4 +35,8 @@ Object LoxFunction::call(Interpreter& interpreter, std::vector<Object>& argument
 
 std::size_t LoxFunction::arity() const {
    return m_declaration->params().size();
+}
+
+std::string LoxFunction::toString() const {
+   return "<fn " + m_declaration->name().lexeme() + ">";
 }

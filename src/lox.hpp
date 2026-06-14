@@ -9,10 +9,14 @@ class Lox {
 
 public:
    static bool m_hadError;
+
+//   static bool m_hadRuntimeError;
    
    static void error(std::size_t line, std::string_view message);
 
    static void error(Token token, std::string_view message);
+
+   static void runtimeError(const RuntimeError& error);
 
    static std::vector<Token> tokenize(std::string source);
 

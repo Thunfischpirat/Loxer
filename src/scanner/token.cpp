@@ -1,4 +1,5 @@
 #include "token.hpp"
+#include "../interpreter/lox_callable.hpp"
 
 std::ostream& operator<<(std::ostream& os, const TokenType& type) {
     static const std::map<TokenType, std::string> tokenTypeNames = {
@@ -68,6 +69,8 @@ std::ostream& operator<<(std::ostream& os, const Object& literal) {
 	os << std::get<float>(literal);
    } else if (std::holds_alternative<std::monostate>(literal)) {
         os << "nil";
+   } else if (std::holds_alternative<std::shared_ptr<LoxCallable>>(literal)) {
+        os << std::get<std::shared_ptr<LoxCallable>>(literal)->toString();  
    }
    else {
 	os << std::get<std::string>(literal);

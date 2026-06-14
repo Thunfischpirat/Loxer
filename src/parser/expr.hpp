@@ -18,15 +18,15 @@ class Assign;
 class Literal;
 class Call;
 
-using ExprPtr = std::variant<std::unique_ptr<Binary>,
+using ExprPtr = std::variant<std::monostate,
+                             std::unique_ptr<Binary>,
                              std::unique_ptr<Logical>,
                              std::unique_ptr<Unary>,
                              std::unique_ptr<Grouping>,
                              std::unique_ptr<Variable>,
                              std::unique_ptr<Assign>,
                              std::unique_ptr<Literal>,
-                             std::unique_ptr<Call>,
-                             std::monostate>;
+                             std::unique_ptr<Call>>;
 
 class Binary {
    protected: 
